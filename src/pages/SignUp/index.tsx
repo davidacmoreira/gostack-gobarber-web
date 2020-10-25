@@ -12,7 +12,7 @@ import Button from '../../components/Button';
 
 import logoImg from '../../assets/logo.svg';
 
-import { Container, Content, Background } from './styles';
+import { Container, Content, AnimatedContainer, Background } from './styles';
 
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
@@ -40,28 +40,30 @@ const SignUp: React.FC = () => {
       <Background />
 
       <Content>
-        <img src={logoImg} alt="GoBarber" />
+        <AnimatedContainer>
+          <img src={logoImg} alt="GoBarber" />
 
-        <Form ref={formRef} onSubmit={handleSubmit}>
-          <h1>SignUp</h1>
+          <Form ref={formRef} onSubmit={handleSubmit}>
+            <h1>SignUp</h1>
 
-          <Input name="name" icon={FiUser} placeholder="Name" />
-          <Input name="email" icon={FiMail} placeholder="E-mail" />
+            <Input name="name" icon={FiUser} placeholder="Name" />
+            <Input name="email" icon={FiMail} placeholder="E-mail" />
 
-          <Input
-            name="password"
-            icon={FiLock}
-            type="password"
-            placeholder="Password"
-          />
+            <Input
+              name="password"
+              icon={FiLock}
+              type="password"
+              placeholder="Password"
+            />
 
-          <Button type="submit">Register</Button>
-        </Form>
+            <Button type="submit">Register</Button>
+          </Form>
 
-        <Link to="/">
-          <FiArrowLeft />
-          Back to SignIn
-        </Link>
+          <Link to="/">
+            <FiArrowLeft />
+            Back to SignIn
+          </Link>
+        </AnimatedContainer>
       </Content>
     </Container>
   );
