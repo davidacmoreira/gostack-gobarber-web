@@ -36,7 +36,9 @@ const ResetPassword: React.FC = () => {
         formRef.current?.setErrors({});
 
         const schema = Yup.object().shape({
-          password: Yup.string().required('Password empty'),
+          password: Yup.string()
+            .min(6, 'Password invalid')
+            .required('Password empty'),
           password_confirmation: Yup.string().oneOf(
             [Yup.ref('password'), undefined],
             'Passwords must match',
@@ -96,7 +98,7 @@ const ResetPassword: React.FC = () => {
               name="password_confirmation"
               icon={FiLock}
               type="password"
-              placeholder="Confirmation"
+              placeholder="Password confirmation"
             />
 
             <Button type="submit">Reset Password</Button>
