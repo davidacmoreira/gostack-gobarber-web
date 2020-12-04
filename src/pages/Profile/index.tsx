@@ -20,7 +20,9 @@ import { Container, Content, AvatarInput } from './styles';
 interface ProfileFormData {
   name: string;
   email: string;
+  previous_password: string;
   password: string;
+  password_confirmation: string;
 }
 
 const Profile: React.FC = () => {
@@ -40,19 +42,53 @@ const Profile: React.FC = () => {
         const schema = Yup.object().shape({
           name: Yup.string().required('Name empty'),
           email: Yup.string().required('E-mail empty').email('E-mail invalid'),
-          password: Yup.string().min(6, 'Password invalid'),
+          previous_password: Yup.string(),
+          password: Yup.string().when('previous_password', {
+            is: val => !!val.length,
+            then: Yup.string()
+              .min(6, 'Password invalid')
+              .required('Password empty'),
+            otherwise: Yup.string(),
+          }),
+          password_confirmation: Yup.string()
+            .when('previous_password', {
+              is: val => !!val.length,
+              then: Yup.string()
+                .min(6, 'Password invalid')
+                .required('Password empty'),
+              otherwise: Yup.string(),
+            })
+            .oneOf([Yup.ref('password'), undefined], 'Passwords must match'),
         });
 
         await schema.validate(data, { abortEarly: false });
 
-        await api.post('/users', data);
+        const {
+          name,
+          email,
+          previous_password,
+          password,
+          password_confirmation,
+        } = data;
 
-        history.push('/');
+        const formData = {
+          name,
+          email,
+          ...(previous_password
+            ? { previous_password, password, password_confirmation }
+            : {}),
+        };
+
+        const response = await api.put('/profile', formData);
+
+        updateUser(response.data);
+
+        history.push('/dashboard');
 
         addToast({
           type: 'success',
-          title: 'Success SingUp',
-          description: 'You can now SignIn on GoBarber',
+          title: 'Success update user profile',
+          description: 'User profile updated',
         });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
@@ -63,12 +99,12 @@ const Profile: React.FC = () => {
 
         addToast({
           type: 'error',
-          title: 'Error Profile',
-          description: 'Error Profile, try again',
+          title: 'Error Update User Profile',
+          description: 'Error update user profile, try again',
         });
       }
     },
-    [addToast, history],
+    [updateUser, addToast, history],
   );
 
   const handleAvatarChange = useCallback(
@@ -83,7 +119,8 @@ const Profile: React.FC = () => {
 
           addToast({
             type: 'success',
-            title: 'Avatar updated',
+            title: 'Success update user avatar',
+            description: 'User avatar updated',
           });
         });
       }
@@ -125,19 +162,19 @@ const Profile: React.FC = () => {
             name="previous_password"
             icon={FiLock}
             type="password"
-            placeholder="Previous Password"
+            placeholder="Previous password"
           />
           <Input
             name="password"
             icon={FiLock}
             type="password"
-            placeholder="New Password"
+            placeholder="New password"
           />
           <Input
             name="password_confirmation"
             icon={FiLock}
             type="password"
-            placeholder="Password Confirmation"
+            placeholder="Password confirmation"
           />
 
           <Button type="submit">Save</Button>
